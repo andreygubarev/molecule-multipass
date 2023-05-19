@@ -8,3 +8,6 @@ readme = "README.md"
 license = { text = "MIT" }
 
 dependencies = ["molecule >= 5.0"]
+
+[project.entry-points."molecule.driver"]
+multipass = "molecule_multipass.driver:Multipass"
