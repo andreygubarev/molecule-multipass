@@ -1,0 +1,10 @@
+[project]
+name = "molecule_multipass"
+version = "0.1.0"
+description = "Molecule Multipass"
+authors = [{ "name" = "Andrey Gubarev", "email" = "andrey@andreygubarev.com" }]
+
+readme = "README.md"
+license = { text = "MIT" }
+
+dependencies = ["molecule >= 5.0"]
