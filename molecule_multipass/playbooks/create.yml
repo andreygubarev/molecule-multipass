@@ -43,4 +43,10 @@
         --disk {{ multipass_vm_disk }}
         --cloud-init {{ temp_folder }}/cloud-init.yml
         {{ multipass_vm_image }}
+
+    - name: Register instance IP
+      ansible.buildin.command: >
+        {{ multipass_cmd }} info
+        --format json
+        {{ multipass_vm_name }}
       register: multipass_instance
