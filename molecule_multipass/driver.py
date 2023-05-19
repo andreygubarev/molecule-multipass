@@ -9,7 +9,7 @@ LOG = logger.get_logger(__name__)
 class Multipass(Driver):
     def __init__(self, config=None) -> None:
         super().__init__(config)
-        self._name = "multipass"
+        self._name = "molecule_multipass"
 
     @property
     def name(self):

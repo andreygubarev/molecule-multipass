@@ -1,6 +1,6 @@
 [project]
 name = "molecule_multipass"
-version = "0.1.0"
+version = "0.1.1"
 description = "Molecule Multipass"
 authors = [{ "name" = "Andrey Gubarev", "email" = "andrey@andreygubarev.com" }]
 
@@ -10,4 +10,4 @@ license = { text = "MIT" }
 dependencies = ["molecule >= 5.0"]
 
 [project.entry-points."molecule.driver"]
-multipass = "molecule_multipass.driver:Multipass"
+molecule_multipass = "molecule_multipass.driver:Multipass"
