@@ -4,8 +4,21 @@
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
 
+  vars:
+    multipass_vm_name: "instance"
+    temp_folder: "/tmp"
+
   tasks:
-    - name: Get podman executable path # noqa: command-instead-of-shell
+    - name: Get executable path # noqa: command-instead-of-shell
       ansible.builtin.shell: "command -v multipass"
       register: multipass_path
       changed_when: false
+
+    - name: Register executable path
+      ansible.builtin.set_fact:
+        multipass_cmd: "{{ multipass_path.stdout }}"
+
+    - name: Create cloud-init from template
+      ansible.builtin.template:
+        src: "templates/cloud-init.yml.j2"
+        dest: "{{ temp_folder }}/cloud-init.yml"
