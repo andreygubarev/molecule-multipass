@@ -4,4 +4,8 @@
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
 
-  tasks: []
+  tasks:
+    - name: Get podman executable path # noqa: command-instead-of-shell
+      ansible.builtin.shell: "command -v multipass"
+      register: multipass_path
+      changed_when: false
