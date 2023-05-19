@@ -44,9 +44,41 @@
         --cloud-init {{ temp_folder }}/cloud-init.yml
         {{ multipass_vm_image }}
 
-    - name: Register instance IP
-      ansible.buildin.command: >
+    - name: Register instance info
+      ansible.builtin.command: >
         {{ multipass_cmd }} info
         --format json
         {{ multipass_vm_name }}
-      register: multipass_instance
+      register: multipass_info
+
+    - name: Populate instance info dict
+      ansible.builtin.set_fact:
+        multipass_instance: "{{ multipass_info.stdout | from_json }}"
+
+    - name: Populate instance config dict
+      ansible.builtin.set_fact:
+        instance_conf_dict: {
+          "instance": "{{ multipass_vm_name }}",
+          "address": "{{ multipass_instance.info.instance.ipv4[0] }}",
+          "user": "ubuntu",
+          "port": "22",
+          "identity_file": "{{ multipass_ssh.filename }}",
+        }
+      register: instance_config_dict
+
+    - name: debug
+      ansible.builtin.debug:
+        var: instance_config_dict
+
+    - name: Convert instance config dict to a list
+      set_fact:
+        instance_conf: "{{ instance_config_dict | map(attribute='ansible_facts.instance_conf_dict') | list }}"
+
+    - name: Dump instance config
+      copy:
+        content: "{{ instance_conf | to_json | from_json | molecule_to_yaml | molecule_header }}"
+        dest: "{{ molecule_instance_config }}"
+
+    - name: debug
+      ansible.builtin.debug:
+        var: molecule_instance_config
