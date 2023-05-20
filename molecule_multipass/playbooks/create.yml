@@ -41,7 +41,7 @@
         --memory {{ item.vm_memory | default(multipass_vm_memory) }}
         --disk {{ item.vm_disk | default(multipass_vm_disk) }}
         --cloud-init {{ temp_folder }}/cloud-init.yml
-        {{ multipass_vm_image }}
+        {{ item.vm_image | default(multipass_vm_image) }}
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
