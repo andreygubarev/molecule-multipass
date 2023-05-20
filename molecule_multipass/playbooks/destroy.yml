@@ -8,7 +8,7 @@
     multipass_executable: "multipass"
 
   tasks:
-    - name: Get multipass executable path
+    - name: Get multipass executable path  # noqa: command-instead-of-shell
       ansible.builtin.shell: "command -v {{ multipass_executable }}"
       register: multipass_path
       changed_when: false
@@ -17,16 +17,17 @@
       ansible.builtin.set_fact:
         multipass_cmd: "{{ multipass_path.stdout }}"
 
-    - block:
+    - name: Prepare VMs config
+      block:
         - name: Prepare VMs config
-          set_fact:
+          ansible.builtin.set_fact:
             instance_conf: "{{ lookup('file', molecule_instance_config) | from_yaml }}"
       rescue:
         - name: Prepare VMs config when file missing
-          set_fact:
+          ansible.builtin.set_fact:
             instance_conf: {}
 
-    - name: Destroy VMs
+    - name: Destroy VMs  # noqa: no-changed-when
       ansible.builtin.command: >
         {{ multipass_cmd }} delete --purge {{ item.instance }}
       loop: "{{ instance_conf }}"
@@ -48,10 +49,11 @@
       delay: 5
 
     - name: Prepare VMs config list
-      set_fact:
+      ansible.builtin.set_fact:
         instance_conf: {}
 
     - name: Dump VMs config
-      copy:
+      ansible.builtin.copy:
         content: "{{ instance_conf | to_json | from_json | to_yaml }}"
         dest: "{{ molecule_instance_config }}"
+        mode: "0644"
