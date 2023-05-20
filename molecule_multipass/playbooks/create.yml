@@ -37,9 +37,9 @@
       ansible.builtin.command: >
         {{ multipass_cmd }} launch
         --name {{ item.name }}
-        --cpus {{ multipass_vm_cpus }}
-        --memory {{ multipass_vm_memory }}
-        --disk {{ multipass_vm_disk }}
+        --cpus {{ item.vm_cpus | default(multipass_vm_cpus) }}
+        --memory {{ item.vm_memory | default(multipass_vm_memory) }}
+        --disk {{ item.vm_disk | default(multipass_vm_disk) }}
         --cloud-init {{ temp_folder }}/cloud-init.yml
         {{ multipass_vm_image }}
       loop: "{{ molecule_yml.platforms }}"
