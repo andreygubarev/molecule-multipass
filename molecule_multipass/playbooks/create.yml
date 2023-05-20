@@ -33,7 +33,7 @@
         src: "templates/cloud-init.yml.j2"
         dest: "{{ temp_folder }}/cloud-init.yml"
 
-    - name: Launch instance
+    - name: Launch VMs
       ansible.builtin.command: >
         {{ multipass_cmd }} launch
         --name {{ item.name }}
@@ -49,7 +49,7 @@
       poll: 0
       register: multipass_launch
 
-    - name: Wait for instance to be ready
+    - name: Wait for VMs to be ready
       ansible.builtin.async_status:
         jid: "{{ item.ansible_job_id }}"
       loop: "{{ multipass_launch.results }}"
@@ -60,7 +60,7 @@
       retries: 30
       delay: 10
 
-    - name: Register instance info
+    - name: Register VMs info
       ansible.builtin.command: >
         {{ multipass_cmd }} info
         --format json
@@ -68,16 +68,49 @@
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
-      register: _multipass_instance_info
+      register: multipass_instance_info
 
-    # - name: Get instance info
+    - name: Parse VMs info
+      ansible.builtin.set_fact:
+        multipass_instance_info: "{{ multipass_instance_info.results | map(attribute='stdout') | map('from_json') | list }}"
+
+    - name: debug
+      ansible.builtin.debug:
+        var: multipass_instance_info
+
+
     #   ansible.builtin.set_fact:
-    #     multipass_instance_info: "{{ item.stdout | from_json }}"
-    #   with_items: "{{ _multipass_instance_info.results }}"
+    #     _multipass_instance_info: "{{ _multipass_instance_info_raw.results | map(attribute='stdout') | map('from_json') | list }}"
+
+    # - name: debug
+    #   ansible.builtin.debug:
+    #     var: _multipass_instance_info
+
+    # - name: Convert VMs info to dict
+    #   ansible.builtin.set_fact:
+    #     multipass_instance_info: "{{ _multipass_instance_info | map(attribute='info') | map('combine') | list | items2dict(key_name='name', value_name='ipv4') }}"
 
     # - name: debug
     #   ansible.builtin.debug:
     #     var: multipass_instance_info
+
+    # - name: Populate instance config dict
+    #   ansible.builtin.set_fact:
+    #     instance_conf_dict: {
+    #       "instance": "{{ item.name }}",
+    #       "address": "{{ multipass_instance_info[item.name][0] }}",
+    #       "user": "ubuntu",
+    #       "port": "22",
+    #       "identity_file": "{{ multipass_ssh.filename }}",
+    #     }
+    #   loop: "{{ molecule_yml.platforms }}"
+    #   loop_control:
+    #     label: "{{ item.name }}"
+    #   register: instance_config_dict
+
+    # - name: debug
+    #   ansible.builtin.debug:
+    #     var: instance_config_dict
 
     # - name: Populate instance config dict
     #   ansible.builtin.set_fact:
