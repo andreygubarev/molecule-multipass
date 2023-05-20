@@ -27,7 +27,6 @@
         path: "{{ temp_folder }}/id_ed25519"
         type: ed25519
       register: multipass_ssh
-      delegate_to: "localhost"
 
     - name: Create cloud-init from template
       ansible.builtin.template:
