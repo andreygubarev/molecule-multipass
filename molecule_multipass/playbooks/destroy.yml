@@ -32,3 +32,18 @@
       loop: "{{ instance_conf }}"
       loop_control:
         label: "{{ item.instance }}"
+      async: 7200
+      poll: 0
+      register: multipass_destroy
+
+    - name: Wait for VMs to be destroyed
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      loop: "{{ multipass_destroy.results }}"
+      loop_control:
+        label: "{{ item.item.instance }}"
+      register: multipass_destroy_status
+      until: multipass_destroy_status.finished
+      retries: 30
+      delay: 5
+
