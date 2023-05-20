@@ -68,77 +68,31 @@
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
-      register: multipass_instance_info
+      register: instance_info
 
     - name: Parse VMs info
       ansible.builtin.set_fact:
-        multipass_instance_info: "{{ multipass_instance_info.results | map(attribute='stdout') | map('from_json') | list | map(attribute='info') | combine }}"
+        instance_info: "{{ instance_info.results | map(attribute='stdout') | map('from_json') | list | map(attribute='info') | combine }}"
 
-    - name: debug
-      ansible.builtin.debug:
-        var: multipass_instance_info
+    - name: Prepare VMs config dict
+      ansible.builtin.set_fact:
+        instance_conf_dict: {
+          "instance": "{{ item.name }}",
+          "address": "{{ instance_info[item.name].ipv4[0] }}",
+          "user": "ubuntu",
+          "port": "22",
+          "identity_file": "{{ multipass_ssh.filename }}",
+        }
+      loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: instance_config_dict
 
+    - name: Prepare VMs config list
+      set_fact:
+        instance_conf: "{{ instance_config_dict.results | map(attribute='ansible_facts.instance_conf_dict') | list }}"
 
-    #   ansible.builtin.set_fact:
-    #     _multipass_instance_info: "{{ _multipass_instance_info_raw.results | map(attribute='stdout') | map('from_json') | list }}"
-
-    # - name: debug
-    #   ansible.builtin.debug:
-    #     var: _multipass_instance_info
-
-    # - name: Convert VMs info to dict
-    #   ansible.builtin.set_fact:
-    #     multipass_instance_info: "{{ _multipass_instance_info | map(attribute='info') | map('combine') | list | items2dict(key_name='name', value_name='ipv4') }}"
-
-    # - name: debug
-    #   ansible.builtin.debug:
-    #     var: multipass_instance_info
-
-    # - name: Populate instance config dict
-    #   ansible.builtin.set_fact:
-    #     instance_conf_dict: {
-    #       "instance": "{{ item.name }}",
-    #       "address": "{{ multipass_instance_info[item.name][0] }}",
-    #       "user": "ubuntu",
-    #       "port": "22",
-    #       "identity_file": "{{ multipass_ssh.filename }}",
-    #     }
-    #   loop: "{{ molecule_yml.platforms }}"
-    #   loop_control:
-    #     label: "{{ item.name }}"
-    #   register: instance_config_dict
-
-    # - name: debug
-    #   ansible.builtin.debug:
-    #     var: instance_config_dict
-
-    # - name: Populate instance config dict
-    #   ansible.builtin.set_fact:
-    #     instance_conf_dict: {
-    #       "instance": "{{ item.name }}",
-    #       "address": "{{ multipass_instance.info.instance.ipv4[0] }}",
-    #       "user": "ubuntu",
-    #       "port": "22",
-    #       "identity_file": "{{ multipass_ssh.filename }}",
-    #     }
-    #   loop: "{{ molecule_yml.platforms }}"
-    #   loop_control:
-    #     label: "{{ item.name }}"
-    #   register: instance_config_dict
-
-    # - name: debug
-    #   ansible.builtin.debug:
-    #     var: instance_config_dict
-
-    # - name: Convert instance config dict to a list
-    #   set_fact:
-    #     instance_conf: "{{ instance_config_dict | map(attribute='ansible_facts.instance_conf_dict') | list }}"
-
-    # - name: Dump instance config
-    #   copy:
-    #     content: "{{ instance_conf | to_json | from_json | molecule_to_yaml | molecule_header }}"
-    #     dest: "{{ molecule_instance_config }}"
-
-    # - name: debug
-    #   ansible.builtin.debug:
-    #     var: molecule_instance_config
+    - name: Dump VMs config
+      copy:
+        content: "{{ instance_conf | to_json | from_json | to_yaml }}"
+        dest: "{{ molecule_instance_config }}"
