@@ -15,12 +15,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Generate changelog
-        id: changelog
-        uses: github-changelog-generator/github-changelog-generator@master
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
