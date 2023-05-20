@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "setuptools >= 64.0.0",
+  "setuptools >= 45.0.0",
   "setuptools_scm[toml] >= 7.0.5",
   "wheel",
 ]
@@ -22,3 +22,5 @@ Homepage = "https://github.com/andreygubarev/molecule-multipass/"
 
 [project.entry-points."molecule.driver"]
 molecule_multipass = "molecule_multipass.driver:Multipass"
+
+[tool.setuptools_scm]
