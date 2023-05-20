@@ -72,7 +72,7 @@
 
     - name: Parse VMs info
       ansible.builtin.set_fact:
-        multipass_instance_info: "{{ multipass_instance_info.results | map(attribute='stdout') | map('from_json') | list }}"
+        multipass_instance_info: "{{ multipass_instance_info.results | map(attribute='stdout') | map('from_json') | list | map(attribute='info') | combine }}"
 
     - name: debug
       ansible.builtin.debug:
