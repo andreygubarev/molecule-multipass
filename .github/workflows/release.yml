@@ -25,5 +25,4 @@ jobs:
         with:
           draft: true
           prerelease: ${{ steps.prerelease.outputs.prerelease }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
