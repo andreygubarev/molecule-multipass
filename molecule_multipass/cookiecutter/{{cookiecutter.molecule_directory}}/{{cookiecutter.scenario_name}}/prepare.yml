@@ -1,6 +1,7 @@
 ---
 - name: Prepare
   hosts: all
+  become: true
   tasks:
     - name: Update available packages
       ansible.builtin.raw: apt update -yq
