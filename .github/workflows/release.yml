@@ -25,5 +25,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: true
+          body: ${{ steps.changelog.outputs.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
