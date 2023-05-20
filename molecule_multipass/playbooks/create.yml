@@ -13,7 +13,7 @@
     molecule_ephemeral_directory: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}"
 
   tasks:
-    - name: Get multipass executable path
+    - name: Get multipass executable path  # noqa: command-instead-of-shell
       ansible.builtin.shell: "command -v {{ multipass_executable }}"
       register: multipass_path
       changed_when: false
@@ -32,8 +32,9 @@
       ansible.builtin.template:
         src: "templates/cloud-init.yml.j2"
         dest: "{{ molecule_ephemeral_directory }}/cloud-init.yml"
+        mode: "0644"
 
-    - name: Launch VMs
+    - name: Launch VMs  # noqa: no-changed-when
       ansible.builtin.command: >
         {{ multipass_cmd }} launch
         --name {{ item.name }}
@@ -60,7 +61,7 @@
       retries: 30
       delay: 10
 
-    - name: Register VMs info
+    - name: Register VMs info  # noqa: no-changed-when
       ansible.builtin.command: >
         {{ multipass_cmd }} info
         --format json
@@ -89,10 +90,11 @@
       register: instance_config_dict
 
     - name: Prepare VMs config list
-      set_fact:
+      ansible.builtin.set_fact:
         instance_conf: "{{ instance_config_dict.results | map(attribute='ansible_facts.instance_conf_dict') | list }}"
 
     - name: Dump VMs config
-      copy:
+      ansible.builtin.copy:
         content: "{{ instance_conf | to_json | from_json | to_yaml }}"
         dest: "{{ molecule_instance_config }}"
+        mode: "0644"
