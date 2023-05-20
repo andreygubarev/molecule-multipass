@@ -10,7 +10,8 @@ $(ANSIBLE_VIRTUALENV):
 	python3 -m venv $(ANSIBLE_VIRTUALENV)
 	$(ANSIBLE_PYTHON) -m pip install -U pip setuptools wheel
 	$(ANSIBLE_PIP) install -U \
-		'ansible-lint==6.16.1'
+		'ansible-lint==6.16.1' \
+		'pycodestyle==2.10.0'
 
 .PHONY: virtualenv
 virtualenv: $(ANSIBLE_VIRTUALENV) ## Create local environment
@@ -18,6 +19,7 @@ virtualenv: $(ANSIBLE_VIRTUALENV) ## Create local environment
 .PHONY: lint
 lint: virtualenv ## Lint
 	$(ANSIBLE_VIRTUALENV)/bin/ansible-lint -v
+	$(ANSIBLE_VIRTUALENV)/bin/pycodestyle molecule_multipass
 
 .PHONY: clean
 clean: ## Remove cache

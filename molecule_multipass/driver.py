@@ -72,4 +72,3 @@ class Multipass(Driver):
         return next(
             item for item in instance_config_dict if item["instance"] == instance_name
         )
-
