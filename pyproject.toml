@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "molecule_multipass"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Molecule Multipass"
 authors = [{ "name" = "Andrey Gubarev", "email" = "andrey@andreygubarev.com" }]
 
