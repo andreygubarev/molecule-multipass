@@ -8,16 +8,16 @@
       changed_when: false
 
     - name: Install prerequisites
-      ansible.builtin.raw: >-
+      ansible.builtin.raw: >
         apt install -yq --no-install-recommends
-          ca-certificates
-          curl
-          unzip
+        ca-certificates
+        curl
+        unzip
       changed_when: false
 
     - name: Install Python 3.x
-      ansible.builtin.raw: >-
+      ansible.builtin.raw: >
         test -e /usr/bin/python3 || apt install -yq --no-install-recommends
-          python3-minimal
-          python3-zipstream
+        python3-minimal
+        python3-zipstream
       changed_when: false
