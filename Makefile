@@ -8,10 +8,16 @@ ANSIBLE_PIP := $(ANSIBLE_PYTHON) -m pip
 
 $(ANSIBLE_VIRTUALENV):
 	python3 -m venv $(ANSIBLE_VIRTUALENV)
-	$(ANSIBLE_PIP) install -U pip setuptools wheel
+	$(ANSIBLE_PYTHON) -m pip install -U pip setuptools wheel
+	$(ANSIBLE_PIP) install -U \
+		'ansible-lint==6.16.1'
 
 .PHONY: virtualenv
 virtualenv: $(ANSIBLE_VIRTUALENV) ## Create local environment
+
+.PHONY: lint
+lint: virtualenv ## Lint
+	$(ANSIBLE_VIRTUALENV)/bin/ansible-lint -v
 
 .PHONY: clean
 clean: ## Remove cache
