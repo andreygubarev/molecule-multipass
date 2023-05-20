@@ -45,6 +45,20 @@
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
+      async: 7200
+      poll: 0
+      register: multipass_launch
+
+    - name: Wait for instance to be ready
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      loop: "{{ multipass_launch.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"
+      register: multipass_launch_status
+      until: multipass_launch_status.finished
+      retries: 30
+      delay: 10
 
     - name: Register instance info
       ansible.builtin.command: >
@@ -54,18 +68,16 @@
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
-      register: multipass_info
+      register: _multipass_instance_info
 
-    # - name: Populate instance info dict
+    # - name: Get instance info
     #   ansible.builtin.set_fact:
-    #     multipass_instance: "{{ multipass_info.stdout | from_json }}"
-    #   loop: "{{ molecule_yml.platforms }}"
-    #   loop_control:
-    #     label: "{{ item.name }}"
+    #     multipass_instance_info: "{{ item.stdout | from_json }}"
+    #   with_items: "{{ _multipass_instance_info.results }}"
 
-    - name: debug
-      ansible.builtin.debug:
-        var: multipass_info
+    # - name: debug
+    #   ansible.builtin.debug:
+    #     var: multipass_instance_info
 
     # - name: Populate instance config dict
     #   ansible.builtin.set_fact:
