@@ -1,5 +1,0 @@
-name-template: 'v$<major>.$<minor>.$<patch>'
-tag-template: 'v$<major>.$<minor>.$<patch>'
-
-template: |
-  $CHANGES
