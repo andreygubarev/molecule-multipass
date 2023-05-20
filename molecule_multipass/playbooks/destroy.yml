@@ -13,7 +13,7 @@
       register: multipass_path
       changed_when: false
 
-    - name: Register multipass executable path
+    - name: Set multipass executable path
       ansible.builtin.set_fact:
         multipass_cmd: "{{ multipass_path.stdout }}"
 
@@ -49,7 +49,7 @@
 
     - name: Prepare VMs config list
       set_fact:
-        instance_conf: []
+        instance_conf: {}
 
     - name: Dump VMs config
       copy:
