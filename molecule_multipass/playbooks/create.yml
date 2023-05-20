@@ -10,7 +10,7 @@
     multipass_vm_memory: 1024M
     multipass_vm_disk: 4G
     multipass_vm_image: "20.04"
-    temp_folder: "/tmp"
+    molecule_ephemeral_directory: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}"
 
   tasks:
     - name: Get multipass executable path
@@ -24,14 +24,14 @@
 
     - name: Generate OpenSSH key pair
       community.crypto.openssh_keypair:
-        path: "{{ temp_folder }}/id_ed25519"
+        path: "{{ molecule_ephemeral_directory }}/id_ed25519"
         type: ed25519
       register: multipass_ssh
 
     - name: Create cloud-init from template
       ansible.builtin.template:
         src: "templates/cloud-init.yml.j2"
-        dest: "{{ temp_folder }}/cloud-init.yml"
+        dest: "{{ molecule_ephemeral_directory }}/cloud-init.yml"
 
     - name: Launch VMs
       ansible.builtin.command: >
@@ -40,7 +40,7 @@
         --cpus {{ item.vm_cpus | default(multipass_vm_cpus) }}
         --memory {{ item.vm_memory | default(multipass_vm_memory) }}
         --disk {{ item.vm_disk | default(multipass_vm_disk) }}
-        --cloud-init {{ temp_folder }}/cloud-init.yml
+        --cloud-init {{ molecule_ephemeral_directory }}/cloud-init.yml
         {{ item.vm_image | default(multipass_vm_image) }}
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
