@@ -47,3 +47,11 @@
       retries: 30
       delay: 5
 
+    - name: Prepare VMs config list
+      set_fact:
+        instance_conf: []
+
+    - name: Dump VMs config
+      copy:
+        content: "{{ instance_conf | to_json | from_json | to_yaml }}"
+        dest: "{{ molecule_instance_config }}"
