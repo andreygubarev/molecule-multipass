@@ -5,6 +5,7 @@
   no_log: "{{ molecule_no_log }}"
 
   vars:
+    multipass_executable: "multipass"
     multipass_vm_cpus: 1
     multipass_vm_memory: 1024M
     multipass_vm_disk: 4G
@@ -12,12 +13,12 @@
     temp_folder: "/tmp"
 
   tasks:
-    - name: Get executable path # noqa: command-instead-of-shell
-      ansible.builtin.shell: "command -v multipass"
+    - name: Get multipass executable path
+      ansible.builtin.shell: "command -v {{ multipass_executable }}"
       register: multipass_path
       changed_when: false
 
-    - name: Register executable path
+    - name: Register multipass executable path
       ansible.builtin.set_fact:
         multipass_cmd: "{{ multipass_path.stdout }}"
 
