@@ -1,7 +1,7 @@
 # `molecule-multipass`
 
 ## Description
-This is a `molecule` plugin for using multipass as a provider.
+This is a `molecule` plugin for using `multipass` as a provider.
 
 ## Usage
 ```bash
