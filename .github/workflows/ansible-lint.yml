@@ -1,4 +1,4 @@
-name: Python Linter
+name: Ansible Linter
 
 on: [push, pull_request]
 
