@@ -8,6 +8,13 @@ This is a `molecule` plugin for using `multipass` as a provider.
 pip install molecule-multipass
 ```
 
+### Dependencies
+
+Install `multipass`:
+```bash
+brew install --cask multipass
+```
+
 ## Example `molecule.yml`
 ```yaml
 ---
