@@ -5,14 +5,35 @@
   no_log: "{{ molecule_no_log }}"
 
   vars:
+    molecule_ephemeral_directory: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}"
+    molecule_scenario_name: "{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}"
+    molecule_project_name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
     multipass_executable: "multipass"
     multipass_vm_cpus: 1
     multipass_vm_memory: 1024M
     multipass_vm_disk: 4G
     multipass_vm_image: "20.04"
-    molecule_ephemeral_directory: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}"
 
   tasks:
+    - name: Register VMs data
+      ansible.builtin.set_fact:
+        instance: {
+          "instance": "molecule-{{ molecule_project_name }}-{{ molecule_scenario_name }}-{{ item.name }}",
+          "name": "{{ item.name }}",
+          "vm_cpus": "{{ item.vm_cpus | default(multipass_vm_cpus) }}",
+          "vm_memory": "{{ item.vm_memory | default(multipass_vm_memory) }}",
+          "vm_disk": "{{ item.vm_disk | default(multipass_vm_disk) }}",
+          "vm_image": "{{ item.vm_image | default(multipass_vm_image) }}",
+        }
+      loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: molecule_instances
+
+    - name: Prepare VMs data
+      ansible.builtin.set_fact:
+        molecule_instances: "{{ molecule_instances.results | map(attribute='ansible_facts.instance') | list }}"
+
     - name: Get multipass executable path  # noqa: command-instead-of-shell
       ansible.builtin.shell: "command -v {{ multipass_executable }}"
       register: multipass_path
@@ -37,13 +58,13 @@
     - name: Launch VMs  # noqa: no-changed-when
       ansible.builtin.command: >
         {{ multipass_cmd }} launch
-        --name {{ item.name }}
-        --cpus {{ item.vm_cpus | default(multipass_vm_cpus) }}
-        --memory {{ item.vm_memory | default(multipass_vm_memory) }}
-        --disk {{ item.vm_disk | default(multipass_vm_disk) }}
+        --name {{ item.instance }}
+        --cpus {{ item.vm_cpus }}
+        --memory {{ item.vm_memory }}
+        --disk {{ item.vm_disk }}
         --cloud-init {{ molecule_ephemeral_directory }}/cloud-init.yml
         {{ item.vm_image | default(multipass_vm_image) }}
-      loop: "{{ molecule_yml.platforms }}"
+      loop: "{{ molecule_instances }}"
       loop_control:
         label: "{{ item.name }}"
       async: 7200
@@ -65,8 +86,8 @@
       ansible.builtin.command: >
         {{ multipass_cmd }} info
         --format json
-        {{ item.name }}
-      loop: "{{ molecule_yml.platforms }}"
+        {{ item.instance }}
+      loop: "{{ molecule_instances }}"
       loop_control:
         label: "{{ item.name }}"
       register: instance_info
@@ -78,13 +99,14 @@
     - name: Prepare VMs config dict
       ansible.builtin.set_fact:
         instance_conf_dict: {
-          "instance": "{{ item.name }}",
-          "address": "{{ instance_info[item.name].ipv4[0] }}",
+          "instance": "{{ item.instance }}",
+          "name": "{{ item.name }}",
+          "address": "{{ instance_info[item.instance].ipv4[0] }}",
           "user": "ubuntu",
           "port": "22",
           "identity_file": "{{ multipass_ssh.filename }}",
         }
-      loop: "{{ molecule_yml.platforms }}"
+      loop: "{{ molecule_instances }}"
       loop_control:
         label: "{{ item.name }}"
       register: instance_config_dict

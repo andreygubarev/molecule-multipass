@@ -32,7 +32,7 @@
         {{ multipass_cmd }} delete --purge {{ item.instance }}
       loop: "{{ instance_conf }}"
       loop_control:
-        label: "{{ item.instance }}"
+        label: "{{ item.name }}"
       async: 7200
       poll: 0
       register: multipass_destroy
@@ -42,7 +42,7 @@
         jid: "{{ item.ansible_job_id }}"
       loop: "{{ multipass_destroy.results }}"
       loop_control:
-        label: "{{ item.item.instance }}"
+        label: "{{ item.item.name }}"
       register: multipass_destroy_status
       until: multipass_destroy_status.finished
       retries: 30
