@@ -15,6 +15,11 @@ Install `multipass`:
 brew install --cask multipass
 ```
 
+## Example scenario
+```bash
+molecule init scenario scenario_name -d molecule_multipass
+```
+
 ## Example `molecule.yml`
 ```yaml
 ---
